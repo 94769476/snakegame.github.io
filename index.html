@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Game</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+    <div id="game">
+        <canvas id="gameCanvas" width="400" height="400"></canvas>
+        <div id="score">Score: 0</div>
+    </div>
+    <div id="gameOver" class="hidden">
+        <h1>Game Over</h1>
+        <p>Your score: <span id="finalScore"></span></p>
+        <button onclick="restartGame()">Play Again</button>
+    </div>
+    <script src="{{ url_for('static', filename='game.js') }}"></script>
+    <script>
+        async function postScore(score) {
+            const response = await fetch('/highscore', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ score: score })
+            });
+            const data = await response.json();
+            console.log(data);
+        }
+
+        // Update the game over logic in the game.js to include posting score
+        function draw() {
+            // existing code...
+            if (collision(newHead, snake)) {
+                clearInterval(game);
+                finalScoreElement.textContent = score;
+                gameOverElement.classList.remove('hidden');
+                postScore(score); // post the score to the server
+                return;
+            }
+            // existing code...
+        }
+    </script>
+</body>
+
+</html>
